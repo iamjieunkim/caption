@@ -1,5 +1,7 @@
 package io.jieun.repository;
 
+import io.jieun.data.Account;
+import io.jieun.data.Board;
 import io.jieun.data.Post;
 
 import java.time.LocalDate;
@@ -10,17 +12,21 @@ import java.util.List;
 //Spring MVC
 //리포지터리는 정확히 -> 데이터 소스가 있던
 //컨트롤러는 사용자 요청을 받아서 처리하는 것이고
+
 public class PostRepository {
 
     private int sequence = 0;
     private List<Post> postList = new ArrayList<>();
 
-    public int save(String title, String body) {
-
+    public Post save(String title, String body, Account account, Board board) {
         Post newPost = new Post(++sequence, title, body);
+
+        newPost.setAccount(account);
+        newPost.setBoard(board);
+
         postList.add(newPost);
 
-        return newPost.getId();
+        return newPost;
     }
 
     public Post getById(int postId) {
@@ -28,6 +34,7 @@ public class PostRepository {
     }
 
     public void update(int postId, String title, String body) {
+
         Post findPost = postList.get(postId - 1);
 
         findPost.setTitle(title);
@@ -38,10 +45,14 @@ public class PostRepository {
     }
 
     public void removeById(int postId) {
+
         Post findPost = postList.get(postId - 1);
 
-        if (findPost != null) {
+        if ( findPost != null ) {
             postList.set(postId - 1, null);
         }
+
     }
+
+
 }

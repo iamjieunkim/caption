@@ -1,11 +1,10 @@
 package io.jieun.data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Board {
+public class Board extends BaseEntity {
 
     private int id;
 
@@ -21,8 +20,17 @@ public class Board {
         this.id = id;
         this.boardName = boardName;
         this.description = description;
+
         this.createdAt = LocalDate.now();
         this.updatedAt = LocalDate.now();
+
+    }
+
+    public void stdout() {
+        System.out.println(" 글 번호 / 글 제목 / 작성일 ");
+        for (Post post : postList) {
+            System.out.printf("%s / %s / %s \n", post.getId(), post.getTitle(), post.getCreatedAt());
+        }
     }
 
     public int getId() {

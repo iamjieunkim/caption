@@ -1,20 +1,16 @@
 package io.jieun.sys;
 
-import io.jieun.controller.BoardController;
-import io.jieun.controller.PostController;
-import io.jieun.data.Post;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import io.jieun.controller.Controller;
+
 import java.util.Scanner;
 
 public class Application {
 
-    private String domain;
-    Scanner sc = new Scanner(System.in);
-    boolean programStatus = true;
+    private final Scanner sc = Container.sc;
 
+    private String domain;
+    private boolean programStatus = true;
 
     public Application(String domain) {
         this.domain = domain;
@@ -22,41 +18,58 @@ public class Application {
 
     public void run() {
 
-        PostController postController = new PostController();
-        BoardController boardController = new BoardController();
-
-        while (programStatus) {
-
+        while( programStatus ) {
 
             String line = "https://" + domain;
 
             System.out.print(line);
             String command = sc.nextLine().trim();
 
-            if (command.equals(".exit")) {
+            if ( command.equals(".exit") ) {
                 System.out.println("Application is exited by admin");
                 break;
             }
 
             Request request = new Request(command);
 
-            if (!request.isValid()) {
+            if ( !request.isValid() ) {
                 System.out.println("잘못된 형식의 입력입니다!");
                 continue;
             }
 
-            switch (request.getControllerCode()) {
-                case "post":
-                    postController.requestHandle(request);
-                    break;
-                case "boards":
-                    boardController.requestHandle(request);
-                    break;
-                default:
-                    System.out.println("존재하지 않는 명령어");
+            Filter filter = new Filter(request);
+
+            if ( !filter.isValidRequest() ) {
+                System.out.println("[403] 권한이 없습니다!");
+                continue;
+            }
+
+            Controller controller = getController(request.getControllerCode());
+
+            if ( controller != null ) {
+                controller.requestHandle(request);
+            } else {
+                System.out.println("잘못된 요청입니다.");
             }
 
 
         }
     }
+
+    public Controller getController(String controllerCode) {
+
+        switch ( controllerCode ) {
+            case "posts":
+                return Container.postController;
+            case "boards":
+                return Container.boardController;
+            case "accounts":
+                return Container.accountController;
+            default:
+                return null;
+        }
+
+    }
+
+
 }

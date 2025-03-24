@@ -12,21 +12,23 @@ public class BoardRepository {
     private int sequence = 0;
     private List<Board> boardList = new ArrayList<>();
 
-    //CRUD
-    public int save(String boardName, String description){
+    public Board save(String boardName, String description) {
+
         ++sequence;
 
         Board newBoard = new Board(sequence, boardName, description);
         boardList.add(newBoard);
 
-        return newBoard.getId();
+        return newBoard;
+
     }
 
-    public Board getBoardById(int id){
-        return boardList.get(id-1);
+    public Board getBoardById(int id) {
+        return boardList.get(id - 1);
     }
 
-    public void update(int boardId, String boardName, String description){
+    public void update(int boardId, String boardName, String description) {
+
         Board findBoard = getBoardById(boardId);
 
         findBoard.setBoardName(boardName);
@@ -35,24 +37,28 @@ public class BoardRepository {
 
     }
 
-    public void remove(int boardId){
+    public void remove(int boardId) {
+
         Board findBoard = getBoardById(boardId);
 
-        if(findBoard != null){
-            boardList.set(boardId-1, null);
-        }else{
-            throw new NoSuchElementException("해당 게시판은 존재하지 않습니다!");
+        if ( findBoard != null ) {
+            boardList.set(boardId - 1, null);
+        } else {
+            throw new NoSuchElementException("해당 게시판은 존재하지 않습니다.");
         }
+
     }
 
+
     public Board getBoardByName(String name) {
-        //BoardList -> ArrayList로 되어 있음
+        // BoardList -> ArrayList
         for (Board board : boardList) {
-            if(board.getBoardName().equals(name)){
+            if ( board.getBoardName().equals(name) ) {
                 return board;
             }
         }
         return null;
     }
+
 }
 

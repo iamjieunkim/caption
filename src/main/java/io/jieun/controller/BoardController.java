@@ -8,68 +8,76 @@ import io.jieun.sys.Request;
 import java.util.List;
 import java.util.Scanner;
 
-public class BoardController {
+public class BoardController implements Controller{
 
-    private BoardService boardService = new BoardService();
-    private Scanner sc = new Scanner(System.in);
+    private final Scanner sc;
+    private final BoardService boardService;
 
+    public BoardController(Scanner sc, BoardService boardService) {
+        this.sc = sc;
+        this.boardService = boardService;
+    }
 
+    @Override
     public void requestHandle(Request request) {
 
-        switch (request.getTarget()) {
+        switch ( request.getTarget() ) {
 
             case "add":
-                System.out.println("게시판을 생성합니다!");
-
-                System.out.print("게시판 이름 : ");
+                System.out.println("form body");
+                System.out.print("boardName : ");
                 String createBoardName = sc.nextLine().trim();
-                System.out.print("게시판 설명 : ");
+                System.out.print("description : ");
                 String createBoardDesc = sc.nextLine().trim();
 
-                int createdBoardId = boardService.createBoard(createBoardName, createBoardDesc);
+                boardService.createBoard(createBoardName, createBoardDesc);
 
-                System.out.println(createdBoardId+"번 게시판이 생성되었습니다!");
+                System.out.println("[201] 게시판이 성공적으로 생성되었습니다.");
                 break;
             case "edit":
 
-                System.out.println("게시판을 수정합니다!");
-                System.out.println("게시판 번호를 정수(양의정수)를 입력해주세요.");
+                if ( !request.hasParam("boardId") ) {
+                    System.out.println("[400] 잘못된 요청입니다.");
+                    return;
+                }
 
-                System.out.print("게시판 번호 : ");
-                String updateId = sc.nextLine().trim();
+                Integer updateBoardId = request.getValue("boardId", Integer.class);
 
-                int updateBoardId = Integer.parseInt(updateId);
-                System.out.print("게시판 제목 : ");
+                System.out.println("form body:");
+                System.out.print("boardName : ");
                 String updateBoardName = sc.nextLine().trim();
-                System.out.print("게시판 설명 : ");
+                System.out.print("description : ");
                 String updateBoardDesc = sc.nextLine().trim();
 
                 boardService.updateBoard(updateBoardId, updateBoardName, updateBoardDesc);
                 break;
             case "remove":
-                System.out.println("게시판을 삭제합니다!");
-                System.out.println("게시판 번호를 정수(양의정수)를 입력해주세요.");
 
-                System.out.print("게시판 번호 : ");
-                String removeId = sc.nextLine().trim();
-                int removeBoardId = Integer.parseInt(removeId);
-
-                boolean result = boardService.removeBoardById(removeBoardId);
-                if (result) {
-                    System.out.println("성공적으로 게시판이 삭제되었습니다!");
-                }else{
-                    System.out.println("게시판 삭제에 실패하였습니다. 다시 시도해주세요.");
+                if ( !request.hasParam("boardId") ) {
+                    System.out.println("[400] 잘못된 요청입니다.");
+                    return;
                 }
 
+                Integer removeBoardId = request.getValue("boardId", Integer.class);
+
+                boolean result = boardService.removeBoardById(removeBoardId);
+
+                if ( result ) {
+                    System.out.println("성공적으로 게시판이 삭제 되었습니다!");
+                } else {
+                    System.out.println("게시판 삭제에 실패하였습니다. 다시 시도해주세요.");
+                }
                 break;
             case "view":
 
-                System.out.println("게시판을 조회합니다.");
-                System.out.println("게시판 이름을 입력해주세요!");
-                System.out.print("게시판 이름 : ");
-                String boardName = sc.nextLine().trim();
+                if ( !request.hasParam("boardId") ) {
+                    System.out.println("[400] 잘못된 요청입니다.");
+                    return;
+                }
 
-                Board findBoard = boardService.getBoardByName(boardName);
+                Integer getBoardId = request.getValue("boardId", Integer.class);
+
+                Board findBoard = boardService.getBoardById(getBoardId);
 
                 if ( findBoard == null ) {
                     System.out.println("해당 게시판은 존재하지 않습니다.");
@@ -81,14 +89,14 @@ public class BoardController {
                 if (postList.isEmpty()) {
                     System.out.println("아직 작성된 글이 없네요, 첫 글의 주인공이 되어보세요!");
                 } else {
-                    System.out.println(" 글 번호 / 글 제목 / 작성일 ");
-                    for (Post post : postList) {
-                        System.out.printf("%s / %s / %s \n", post.getId(), post.getTitle(), post.getCreatedAt());
-                    }
+                    findBoard.stdout();
                 }
                 break;
             default:
                 System.out.println("존재하지 않는 명령어 입니다!");
         }
+
     }
+
+
 }

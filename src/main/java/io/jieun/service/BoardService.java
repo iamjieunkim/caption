@@ -1,21 +1,26 @@
 package io.jieun.service;
 
 import io.jieun.data.Board;
+import io.jieun.data.Post;
 import io.jieun.repository.BoardRepository;
 
 public class BoardService {
 
-    private BoardRepository boardRepository = new BoardRepository();
+    private final BoardRepository boardRepository;
 
-    public int createBoard(String boardName, String description) {
-        return boardRepository.save(boardName, description);
+    public BoardService(BoardRepository boardRepository) {
+        this.boardRepository = boardRepository;
     }
 
-    public Board getBoardById(int boardId){
+    public int createBoard(String boardName, String description) {
+        return boardRepository.save(boardName, description).getId();
+    }
+
+    public Board getBoardById(int boardId) {
         return boardRepository.getBoardById(boardId);
     }
 
-    public Board getBoardByName(String name){
+    public Board getBoardByName(String name) {
         return boardRepository.getBoardByName(name);
     }
 
@@ -24,14 +29,19 @@ public class BoardService {
     }
 
     public boolean removeBoardById(int boardId) {
-        try{
+
+        try {
             boardRepository.remove(boardId);
-            return true;
-        }catch (Exception e){
+        } catch ( Exception e ) {
             return false;
         }
+
+        return true;
+
     }
 
-
+    public void putPostAtBoard(Board board, Post post) {
+        board.getPostList().add(post);
+    }
 
 }
